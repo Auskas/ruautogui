@@ -18,23 +18,24 @@ RuAutoGUI программный пакет для языка программи
 ## Установка
 
 В данный момент поддерживается установка из репозитария github:
-'''
+```
 https://github.com/Auskas/ruautogui.git
-'''
+```
 
 ## Примеры использования модуля клавиатуры
-'''python
+```python
 from ruautogui import keyboard as kb
 
 text = "Пример использования модуля клавиатуры!"
 kb.type(text, mode="fast")
-'''
+```
 ![keyboard_example_1](https://github.com/Auskas/ruautogui/blob/master/demo/kb_example1.gif)
 ___
-'''python
+```python
 from ruautogui import keyboard as kb
    
 text = "Пример использования модуля клавиатуры!"
-kb.type(text, mode="ultrafast", typo=True)'''
+kb.type(text, mode="ultrafast", typo=True)
+```
 ![keyboard_example_2](https://github.com/Auskas/ruautogui/blob/master/demo/kb_example2.gif)
 
