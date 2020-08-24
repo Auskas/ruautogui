@@ -28,6 +28,9 @@ if sys.platform == 'win32':
     import os
     import ctypes
     from ctypes import wintypes
+    import random
+    import math
+    import time
     if __name__ == '__main__':
         import win32tools, bezier
     else:
