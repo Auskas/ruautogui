@@ -1,28 +1,57 @@
 #!/usr/bin/python3
 
-import sys
+import logging
+logger = logging.getLogger('ruautogui.bezier_draftsman')
 
+logger.setLevel(logging.DEBUG)
+
+logConsoleHandler = logging.StreamHandler()
+formatterConsole = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+logConsoleHandler.setFormatter(formatterConsole)
+logger.addHandler(logConsoleHandler)
+
+logFileHandler = logging.FileHandler(f'ruautogui.log')
+formatterFile = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logFileHandler.setFormatter(formatterFile)
+logger.addHandler(logFileHandler)  
+
+import sys
 if sys.platform == 'win32':
     try:
         import cv2
         import numpy
         import ctypes
         if __name__ == '__main__':
-            import bezier, win32tools
+            import bezier
         else:
-            from ruautogui import bezier, win32tools
+            from ruautogui import bezier
     except Exception as exc:
         print(f'Cannot import required module: {exc}')
         sys.exit()
 else:
     raise Exception('Currently supports only Windows OS!')
 
+class POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long),
+                ("y", ctypes.c_long)]
+
+def get_screen_size():
+    return ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
+
+def get_left_button_state():
+    return ctypes.windll.user32.GetKeyState(0x01)
+
+def get_mouse_cursor_position():
+    cursor = POINT()
+    ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+    return (cursor.x, cursor.y)
+
 def get_blank_image(width, height):
     return numpy.zeros(shape=[height, width, 3], dtype=numpy.uint8)
 
 def draftsman():
     try:
-        SCREEN_WIDTH, SCREEN_HEIGHT = win32tools.get_screen_size()
+        SCREEN_WIDTH, SCREEN_HEIGHT = get_screen_size()
     except Exception as exc:
         SCREEN_WIDTH, SCREEN_HEIGHT = 300, 300
     blank_image = get_blank_image(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -31,14 +60,14 @@ def draftsman():
     control_points = []
     mouse_key_down = False
     while True:
-        current_button_state = win32tools.get_left_button_state()
+        current_button_state = get_left_button_state()
 
         if len(begin_and_end_points) < 2 and \
         current_button_state not in left_button_release_state and \
         mouse_key_down == False:
-            begin_and_end_points.append(win32tools.get_mouse_cursor_position())
+            begin_and_end_points.append(get_mouse_cursor_position())
             mouse_key_down = True
-            #print(f'Clicked!: {win32tools.get_mouse_cursor_position()}')
+            #print(f'Clicked!: {get_mouse_cursor_position()}')
 
         elif len(begin_and_end_points) < 2 and \
         current_button_state in left_button_release_state and \
@@ -48,9 +77,9 @@ def draftsman():
         elif len(begin_and_end_points) == 2 and \
         current_button_state not in left_button_release_state and \
         mouse_key_down == False:
-            control_points.append(win32tools.get_mouse_cursor_position())
+            control_points.append(get_mouse_cursor_position())
             mouse_key_down = True
-            #print(f'Clicked!: {win32tools.get_mouse_cursor_position()}')
+            #print(f'Clicked!: {get_mouse_cursor_position()}')
 
         elif len(begin_and_end_points) == 2 and \
         current_button_state in left_button_release_state and \
@@ -101,8 +130,6 @@ def draftsman():
             break
 
     ORDER_OF_CURVE = 1 + len(control_points)
-
-
 
     points, control_points, _ = bezier.get_curve_points(begin_and_end_points[0], 
                                                         begin_and_end_points[1],

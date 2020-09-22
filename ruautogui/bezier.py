@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-logger = logging.getLogger('ruautogui.mouse')
+logger = logging.getLogger('ruautogui.bezier')
 logger.setLevel(logging.DEBUG)
 
 logConsoleHandler = logging.StreamHandler()
@@ -18,10 +18,15 @@ import math
 import random
 import time
 import ctypes
-if __name__ == '__main__':
-    import win32tools
-else:
-    from ruautogui import win32tools
+
+def get_mouse_cursor_position():
+    cursor = POINT()
+    ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+    return (cursor.x, cursor.y)
+    
+class POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long),
+                ("y", ctypes.c_long)]
 
 def get_curve_points(
         begin_pos=None, 
@@ -53,7 +58,7 @@ Returns:
     """
 
     if begin_pos == None:
-        begin_pos = win32tools.get_mouse_cursor_position()
+        begin_pos = get_mouse_cursor_position()
 
     # Make sure that the order equal to at least one.
     if order < 2:

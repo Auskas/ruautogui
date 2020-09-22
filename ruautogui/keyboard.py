@@ -8,20 +8,7 @@
 #   - tuned typing speed;
 #   - hotkeys are supported.
 
-import sys
-
-if sys.platform == 'win32':
-    import os
-    import logging
-    import ctypes
-    from ctypes import wintypes
-    import time, random
-    if __name__ == '__main__':
-        import win32tools
-    else:
-        from ruautogui import win32tools
-else:
-    raise Exception('Currently supports only Windows OS!')
+import logging
 
 logger = logging.getLogger('ruautogui.keyboard')
 logger.setLevel(logging.DEBUG)
@@ -34,7 +21,20 @@ logger.addHandler(logConsoleHandler)
 logFileHandler = logging.FileHandler(f'ruautogui.log')
 formatterFile = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logFileHandler.setFormatter(formatterFile)
-logger.addHandler(logFileHandler)    
+logger.addHandler(logFileHandler)  
+
+import sys
+
+if sys.platform == 'win32':
+    import os
+    
+    import ctypes
+    from ctypes import wintypes
+    import time, random
+else:
+    raise Exception('Currently supports only Windows OS!')
+
+  
 
 KEYEVENTF_KEYDOWN = 0x0000
 KEYEVENTF_KEYUP = 0x0002
@@ -51,6 +51,9 @@ INPUT_HARDWARE = 2
 CHANGE_KEYBOARD_LAYOUT_KEY1 = 'leftalt'
 CHANGE_KEYBOARD_LAYOUT_KEY2 = 'shift'
 
+class POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long),
+                ("y", ctypes.c_long)]
 
 class MOUSEINPUT(ctypes.Structure):
     _fields_ = (("dx",          wintypes.LONG),
@@ -359,7 +362,7 @@ def change_keyboard_layout(thread_id=0, language='russian'):
                         target language on;
             language - a string (default = 'russian') - the target language 
                         to switch on.
-        
+ы        
         This function returns None.
 
         Changes the keyboard layout language by simulating the press of the 

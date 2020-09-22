@@ -1,0 +1,11 @@
+__pycache__
+dist
+build
+RuAutoGUI.egg-info
+chromedriver.exe
+keyboard_backup.py
+bezier_polynom.py
+test_kb1.py
+ruautogui.log
+debug.log
+ruautogui/win32tools.py

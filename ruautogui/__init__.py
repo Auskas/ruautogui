@@ -1,3 +1,6 @@
+
+__version__ = '0.1'
+
 import os, logging
 
 logger = logging.getLogger('ruautogui')

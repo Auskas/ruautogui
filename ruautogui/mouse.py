@@ -8,8 +8,6 @@
 #   - clicks any mouse buttons at the current location 
 #     (double-clicks are allowed).
 
-import sys
-
 import logging
 logger = logging.getLogger('ruautogui.mouse')
 logger.setLevel(logging.DEBUG)
@@ -24,6 +22,7 @@ formatterFile = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(me
 logFileHandler.setFormatter(formatterFile)
 logger.addHandler(logFileHandler)   
 
+import sys
 if sys.platform == 'win32':
     import os
     import ctypes
@@ -32,9 +31,9 @@ if sys.platform == 'win32':
     import math
     import time
     if __name__ == '__main__':
-        import win32tools, bezier
+        import bezier
     else:
-        from ruautogui import win32tools, bezier
+        from ruautogui import bezier
 else:
     raise Exception('Currently supports only Windows OS!')
     sys.exit()
@@ -53,6 +52,10 @@ wintypes.ULONG_PTR = wintypes.WPARAM
 INPUT_MOUSE    = 0
 INPUT_KEYBOARD = 1
 INPUT_HARDWARE = 2
+
+class POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long),
+                ("y", ctypes.c_long)]
 
 class MOUSEINPUT(ctypes.Structure):
     _fields_ = (("dx",          wintypes.LONG),
@@ -83,7 +86,10 @@ class INPUT(ctypes.Structure):
     _fields_ = (("type",   wintypes.DWORD),
                 ("_input", _INPUT))
 
-user32 = ctypes.WinDLL('user32', use_last_error=True)
+def get_mouse_cursor_position():
+    cursor = POINT()
+    ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+    return (cursor.x, cursor.y)
 
 def grab():
     """ This function is used to create a tuple of coordinates to simulate
@@ -94,7 +100,7 @@ transition time to it.
     transition_time = random.randint(95, 145)
     random_angle_rad = random.uniform(0, 2 * math.pi)
     distance = random.randint(15,50)
-    begin_pos = win32tools.get_mouse_cursor_position()
+    begin_pos = get_mouse_cursor_position()
     distanse_x = distance * math.cos(random_angle_rad)
     distance_y = distance * math.sin(random_angle_rad)
     end_pos = (int(begin_pos[0] + distanse_x), int(begin_pos[1] + distance_y))
@@ -126,7 +132,7 @@ This function returns None."""
 
     if len(end_pos) == 0:
         return None
-    begin_pos = win32tools.get_mouse_cursor_position()
+    begin_pos = get_mouse_cursor_position()
     points, _, transition_time_random = bezier.get_curve_points(
         begin_pos=begin_pos, 
         end_pos=end_pos, 
@@ -216,6 +222,8 @@ This function returns None."""
                  mi=MOUSEINPUT(mouseData=0, dwFlags=dwFlags2)
                 )
         user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
+
+user32 = ctypes.WinDLL('user32', use_last_error=True)
 
 if __name__ == '__main__':
     # The following piece of code can be used to test the capabilities of 
